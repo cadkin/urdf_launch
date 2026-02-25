@@ -15,11 +15,17 @@ def generate_launch_description():
                                         description='The package where the robot description is located'))
     ld.add_action(DeclareLaunchArgument('urdf_package_path',
                                         description='The path to the robot description relative to the package root'))
+    ld.add_action(DeclareLaunchArgument('robot_description_content',
+                                        description='Overrides the robot description content',
+                                        default_value=''))
 
-    package_dir = FindPackageShare(LaunchConfiguration('urdf_package'))
-    urdf_path = PathJoinSubstitution([package_dir, LaunchConfiguration('urdf_package_path')])
+    robot_description_content = LaunchConfiguration('robot_description_content')
 
-    robot_description_content = ParameterValue(Command(['xacro ', urdf_path]), value_type=str)
+    if not robot_description_content:
+        package_dir = FindPackageShare(LaunchConfiguration('urdf_package'))
+        urdf_path = PathJoinSubstitution([package_dir, LaunchConfiguration('urdf_package_path')])
+
+        robot_description_content = ParameterValue(Command(['xacro ', urdf_path]), value_type=str)
 
     robot_state_publisher_node = Node(package='robot_state_publisher',
                                       executable='robot_state_publisher',
